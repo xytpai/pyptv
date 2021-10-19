@@ -11,7 +11,7 @@ class Object3DContainer:
         self.identity_to_object = {}
         self.name_to_instance = {}
     
-    def AddObjectBySTLFile(self, stl_file_path, scale=1.0) -> str:
+    def AddObjectBySTLFile(self, stl_file_path: str, scale=1.0) -> str:
         identity = 'None'
         with open(stl_file_path, 'rb') as f:
             f.read(80)
@@ -46,10 +46,10 @@ class Object3DContainer:
             self.identity_to_object[identity] = info
         return identity
     
-    def GetObjectCenter(self, identity) -> list:
+    def GetObjectCenter(self, identity: str) -> list:
         return self.identity_to_object[identity]['center']
 
-    def AddInstance(self, name, identity) -> None:
+    def AddInstance(self, name: str, identity: str) -> None:
         info = {
             'name': name,
             'identity': identity,
@@ -66,14 +66,36 @@ class Object3DContainer:
         else:
             self.identity_to_object[identity]['count'] += 1
     
-    def RotateTo(self, name, degree, axis) -> None:
+    def SetInstanceModel(self, name: str, model: glm.mat4) -> None:
+        self.name_to_instance[name]['model'] = model
+    
+    def SetInstanceColor(self, name: str, rgb) -> None:
+        if isinstance(rgb, list):
+            rgb = glm.vec3(rgb[0], rgb[1], rgb[2])
+        self.name_to_instance[name]['color'] = rgb
+    
+    def SetInstanceF0(self, name: str, f0) -> None:
+        if isinstance(f0, list):
+            f0 = glm.vec3(f0[0], f0[1], f0[2])
+        self.name_to_instance[name]['f0'] = f0
+    
+    def SetInstanceAO(self, name: str, ao: float) -> None:
+        self.name_to_instance[name]['ao'] = ao
+    
+    def SetInstanceRoughness(self, name: str, roughness: float) -> None:
+        self.name_to_instance[name]['roughness'] = roughness
+    
+    def SetInstanceMetallic(self, name: str, metallic: float) -> None:
+        self.name_to_instance[name]['metallic'] = metallic
+    
+    def RotateTo(self, name: str, degree, axis) -> None:
         if isinstance(axis, list): 
             axis = glm.vec3(axis[0], axis[1], axis[2])
         model = glm.mat4(1.0)
         model = glm.rotate(model, glm.radians(degree), axis)
         self.name_to_instance[name]['model'] = model
     
-    def TranslateTo(self, name, position) -> None:
+    def TranslateTo(self, name: str, position) -> None:
         if isinstance(position, list): 
             position = glm.vec3(position[0], position[1], position[2])
         model = glm.mat4(1.0)

@@ -5,8 +5,7 @@ from OpenGL.GL.shaders import *
 import ctypes
 import glm
 from config import cfg
-from object3d import *
-from camera import *
+from engine import *
 
 
 def main_loop():
@@ -30,10 +29,12 @@ def main_loop():
     camera = ViewCamera()
     str1 = container.AddObjectBySTLFile('model3d/SHL_2pcs.stl', 0.1)
     camera.SetPosition([0, 0, -40])    
-    camera.SetPitch(180)
+    # camera.SetPitch(180)
     container.AddInstance('haha', str1)
     container.TranslateTo('haha', container.GetObjectCenter(str1))
+    container.SetInstanceColor('haha', [255,0,0])
     # camera.UpdateCameraVectors()
+    camera.LookAt(container.GetObjectCenter(str1))
 
     degree = 0
 
