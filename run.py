@@ -31,7 +31,7 @@ def main_loop():
     camera.SetPosition([0, 0, -40])    
     # camera.SetPitch(180)
     container.AddInstance('haha', str1)
-    container.TranslateTo('haha', container.GetObjectCenter(str1))
+    container.TranslateInstanceTo('haha', container.GetObjectCenter(str1))
     container.SetInstanceColor('haha', [255,0,0])
     # camera.UpdateCameraVectors()
     camera.LookAt(container.GetObjectCenter(str1))
@@ -56,7 +56,7 @@ def main_loop():
         glClearColor(0.5, 0.5, 0.5, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        container.RotateTo('haha', degree, [0,0,122])
+        container.RotateInstanceTo('haha', degree, [0,0,122])
         glUniform3fv(uniform['light_color'], 1, glm.value_ptr(glm.vec3(1.0, 1.0, 1.0)))
         glUniform3fv(uniform['light_direction'], 1, glm.value_ptr(-camera.front))
         camera.RenderGL(program, cfg.win_height, cfg.win_width)

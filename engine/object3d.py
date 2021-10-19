@@ -88,14 +88,14 @@ class Object3DContainer:
     def SetInstanceMetallic(self, name: str, metallic: float) -> None:
         self.name_to_instance[name]['metallic'] = metallic
     
-    def RotateTo(self, name: str, degree, axis) -> None:
+    def RotateInstanceTo(self, name: str, degree, axis) -> None:
         if isinstance(axis, list): 
             axis = glm.vec3(axis[0], axis[1], axis[2])
         model = glm.mat4(1.0)
         model = glm.rotate(model, glm.radians(degree), axis)
         self.name_to_instance[name]['model'] = model
     
-    def TranslateTo(self, name: str, position) -> None:
+    def TranslateInstanceTo(self, name: str, position) -> None:
         if isinstance(position, list): 
             position = glm.vec3(position[0], position[1], position[2])
         model = glm.mat4(1.0)
