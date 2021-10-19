@@ -1,0 +1,4 @@
+pyopengl
+pyglm
+pygame
+addict
