@@ -20,7 +20,7 @@ class Camera:
             z
         
         order: xyz
-        (1,0,0) -> (1,0,-1): yaw(0 -> 90)
+        (1,0,0) -> (0,0,-1): yaw(0 -> 90)
         (0,0,-1) -> (0,1,0): pitch(0 -> 90)
         '''
         self.position = glm.vec3(0.0, 0.0, 0.0)
