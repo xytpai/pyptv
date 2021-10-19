@@ -28,11 +28,11 @@ def main_loop():
     glUseProgram(program)
     container = Object3DContainer()
     camera = ViewCamera()
-    str1 = container.AddBufferBySTLFile('model3d/SHL_2pcs.stl', 0.1)
+    str1 = container.AddObjectBySTLFile('model3d/SHL_2pcs.stl', 0.1)
     camera.SetPosition([0, 0, -40])    
     camera.SetPitch(180)
-    container.AddObject('haha', str1)
-    container.TranslateTo('haha', container.GetCenter(str1))
+    container.AddInstance('haha', str1)
+    container.TranslateTo('haha', container.GetObjectCenter(str1))
     # camera.UpdateCameraVectors()
 
     degree = 0

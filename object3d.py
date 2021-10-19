@@ -7,12 +7,12 @@ import glm
 
 
 class Object3DContainer:
-    def __init__(self):
-        self.map_identity2buffer_ = {}
-        self.map_name2object_ = {}
+    def __init__(self) -> None:
+        self.identity_to_object = {}
+        self.name_to_instance = {}
     
-    def AddBufferBySTLFile(self, stl_file_path, scale=1.0):
-        identity = None
+    def AddObjectBySTLFile(self, stl_file_path, scale=1.0) -> str:
+        identity = 'None'
         with open(stl_file_path, 'rb') as f:
             f.read(80)
             num_tris = struct.unpack('i', f.read(4))[0]
@@ -43,15 +43,16 @@ class Object3DContainer:
                 'identity':identity,
                 'center':[cx, cy, cz]
             }
-            self.map_identity2buffer_[identity] = info
+            self.identity_to_object[identity] = info
         return identity
     
-    def GetCenter(self, identity):
-        return self.map_identity2buffer_[identity]['center']
+    def GetObjectCenter(self, identity) -> list:
+        return self.identity_to_object[identity]['center']
 
-    def AddObject(self, name, identity):
+    def AddInstance(self, name, identity) -> None:
         info = {
-            'buffer': self.map_identity2buffer_[identity],
+            'name': name,
+            'identity': identity,
             'model': glm.mat4(1),
             'color': glm.vec3(0.2, 0.8, 0.1),
             'f0': glm.vec3(1.0, 0.71, 0.29),
@@ -59,53 +60,48 @@ class Object3DContainer:
             'roughness': 0.4,
             'metallic': 0.4
         }
-        self.map_name2object_[name] = info
-        if self.map_identity2buffer_[identity].get('count', None) is None:
-            self.map_identity2buffer_[identity]['count'] = 0
+        self.name_to_instance[name] = info
+        if self.identity_to_object[identity].get('count', None) is None:
+            self.identity_to_object[identity]['count'] = 0
         else:
-            self.map_identity2buffer_[identity]['count'] += 1
+            self.identity_to_object[identity]['count'] += 1
     
-    def RotateTo(self, name, degree, axis):
-        if isinstance(axis, list): axis = glm.vec3(axis[0], axis[1], axis[2])
-        obj_info = self.map_name2object_[name]
+    def RotateTo(self, name, degree, axis) -> None:
+        if isinstance(axis, list): 
+            axis = glm.vec3(axis[0], axis[1], axis[2])
         model = glm.mat4(1.0)
         model = glm.rotate(model, glm.radians(degree), axis)
-        obj_info['model'] = model
+        self.name_to_instance[name]['model'] = model
     
-    def TranslateTo(self, name, position):
-        if isinstance(position, list): position = glm.vec3(position[0], position[1], position[2])
-        obj_info = self.map_name2object_[name]
+    def TranslateTo(self, name, position) -> None:
+        if isinstance(position, list): 
+            position = glm.vec3(position[0], position[1], position[2])
         model = glm.mat4(1.0)
         model = glm.translate(model, position)
-        obj_info['model'] = model
+        self.name_to_instance[name]['model'] = model
     
-    def RenderGL(self, shader):
+    def RenderGL(self, shader) -> None:
         glUseProgram(shader)
         uniform = { u : glGetUniformLocation(shader, u) for u in \
             ['model',  'object_color', 'object_f0', 'ao', 'roughness', 'metallic'] }
-        for name in self.map_name2object_.keys():
-            obj_info = self.map_name2object_[name]
-            buffer_info = obj_info['buffer']
-            glBindVertexArray(buffer_info['vao'])
-            if not buffer_info.get('is_glbuffer', False):
+        for name in self.name_to_instance.keys():
+            ins_info = self.name_to_instance[name]
+            obj_info = self.identity_to_object[ins_info['identity']]
+            glBindVertexArray(obj_info['vao'])
+            if not obj_info.get('is_glbuffer', False):
                 vbo = glGenBuffers(1)
                 glBindBuffer(GL_ARRAY_BUFFER, vbo)
-                glBufferData(GL_ARRAY_BUFFER, (GLfloat * buffer_info['len'])(*buffer_info['data']), GL_STATIC_DRAW)
+                glBufferData(GL_ARRAY_BUFFER, (GLfloat * obj_info['len'])(*obj_info['data']), GL_STATIC_DRAW)
                 glVertexAttribPointer(0, 3, GL_FLOAT, False, 6*ctypes.sizeof(GLfloat), ctypes.c_void_p(0))
                 glEnableVertexAttribArray(0)
                 glVertexAttribPointer(1, 3, GL_FLOAT, False, 6*ctypes.sizeof(GLfloat), ctypes.c_void_p(3*ctypes.sizeof(GLfloat)))
                 glEnableVertexAttribArray(1)
-                buffer_info['is_glbuffer'] = True
-            glUniformMatrix4fv(uniform['model'], 1, GL_FALSE, glm.value_ptr(obj_info['model']))
-            glUniform3fv(uniform['object_color'], 1, glm.value_ptr(obj_info['color']))
-            glUniform3fv(uniform['object_f0'], 1, glm.value_ptr(obj_info['f0']))
-            glUniform1f(uniform['ao'], obj_info['ao'])
-            glUniform1f(uniform['roughness'], obj_info['roughness'])
-            glUniform1f(uniform['metallic'], obj_info['metallic'])
-            glDrawArrays(GL_TRIANGLES, 0, buffer_info['len']//6)
+                obj_info['is_glbuffer'] = True
+            glUniformMatrix4fv(uniform['model'], 1, GL_FALSE, glm.value_ptr(ins_info['model']))
+            glUniform3fv(uniform['object_color'], 1, glm.value_ptr(ins_info['color']))
+            glUniform3fv(uniform['object_f0'], 1, glm.value_ptr(ins_info['f0']))
+            glUniform1f(uniform['ao'], ins_info['ao'])
+            glUniform1f(uniform['roughness'], ins_info['roughness'])
+            glUniform1f(uniform['metallic'], ins_info['metallic'])
+            glDrawArrays(GL_TRIANGLES, 0, obj_info['len']//6)
         glBindVertexArray(0)
-
-
-if __name__ == '__main__':
-    objc = Object3DContainer
-    objc.AddBufferBySTLFile('model3d/SHL_2pcs.stl')
