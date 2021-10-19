@@ -2,3 +2,4 @@ pyopengl
 pyglm
 pygame
 addict
+pyserial
