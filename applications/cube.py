@@ -1,16 +1,18 @@
+import os, sys; sys.path.append(os.getcwd())
 import pygame
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GL.shaders import *
 import ctypes
 import glm
-from config import cfg
 from engine import *
 
 
 def main_loop():
+    win_width = 1920
+    win_height = 1080
     pygame.init()
-    window = pygame.display.set_mode((cfg.win_width, cfg.win_height), \
+    window = pygame.display.set_mode((win_width, win_height), \
         pygame.DOUBLEBUF | pygame.OPENGL | pygame.RESIZABLE)
     clock = pygame.time.Clock()
     with open('./shader/vertex_base.glsl', 'r') as f: glsl_vert = f.read()
@@ -36,6 +38,10 @@ def main_loop():
     # camera.UpdateCameraVectors()
     camera.LookAt(container.GetObjectCenter(str1))
 
+    container.SetInstanceRoughness('haha', 0.9)
+    container.SetInstanceMetallic('haha', 0.3)
+    container.SetInstanceAO('haha', 0.5)
+
     degree = 0
 
     run = True
@@ -45,9 +51,9 @@ def main_loop():
             if event.type == pygame.QUIT:
                 run = False
             elif event.type == pygame.VIDEORESIZE:
-                pass
-                # glViewport(0, 0, event.w, event.h)
-                # proj = set_projection(event.w, event.h)
+                glViewport(0, 0, event.w, event.h)
+                win_height = event.h
+                win_width = event.w
         
         # camera.SetPitch(degree)
         
@@ -56,10 +62,10 @@ def main_loop():
         glClearColor(0.5, 0.5, 0.5, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        container.RotateInstanceTo('haha', degree, [0,0,122])
+        container.RotateInstanceTo('haha', degree, [0,1,1])
         glUniform3fv(uniform['light_color'], 1, glm.value_ptr(glm.vec3(1.0, 1.0, 1.0)))
-        glUniform3fv(uniform['light_direction'], 1, glm.value_ptr(-camera.front))
-        camera.RenderGL(program, cfg.win_height, cfg.win_width)
+        glUniform3fv(uniform['light_direction'], 1, glm.value_ptr(glm.vec3(0,0,-1)))
+        camera.RenderGL(program, win_height, win_width)
         container.RenderGL(program)
         
         degree += 1

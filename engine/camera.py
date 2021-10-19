@@ -45,6 +45,9 @@ class Camera:
         self.right = glm.normalize(glm.cross(self.front, camera_world_up))
         self.up = glm.normalize(glm.cross(self.right, self.front))
     
+    def GetFront(self) -> glm.vec3: return self.front
+    def GetUp(self) -> glm.vec3: return self.up
+    
     def SetPosition(self, xyz) -> None: 
         if isinstance(xyz, glm.vec3):
             self.position = xyz
