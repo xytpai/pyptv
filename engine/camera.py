@@ -7,9 +7,22 @@ import glm
 
 class Camera:
     def __init__(self) -> None:
-        # order: xyz
-        # (1,0,0) -> (1,0,-1): yaw(0 -> 90)
-        # (0,0,-1) -> (0,1,0): pitch(0 -> 90)
+        '''               
+                  y
+                 /|\      
+                  |       .
+                  |     .
+                  |   .
+           - - - - - - - - - -> x
+                . |
+              .   |
+            |_    |
+            z
+        
+        order: xyz
+        (1,0,0) -> (1,0,-1): yaw(0 -> 90)
+        (0,0,-1) -> (0,1,0): pitch(0 -> 90)
+        '''
         self.position = glm.vec3(0.0, 0.0, 0.0)
         self.yaw = -90.0
         self.pitch = -0.0
